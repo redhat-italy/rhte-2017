@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<vdb name="beos" version="1">
+<description/>
+<property name="validationDateTime" value="Thu Sep 21 12:38:42 CEST 2017"/>
+<property name="validationVersion" value="8.12.5"/>
+<model name="customer_vbl" type="VIRTUAL" visible="true">
+<property name="imports" value="src_europa"/>
+<metadata type="DDL"><![CDATA[
+
+CREATE VIEW customer_africa (
+  id long NOT NULL PRIMARY KEY,
+	CITY string(30),
+	COUNTRY string(50),
+	STREET string(30),
+	POBOX string(30),
+	BIRTHDATE date OPTIONS(FIXED_LENGTH 'TRUE'),
+	FIRSTNAME string(30),
+	LASTNAME string(30),
+	SURNAME string(30)
+)
+AS
+	SELECT * FROM src_africa.AF_CUSTOMER;
+
+CREATE VIEW customer_europa (
+  id long NOT NULL PRIMARY KEY,
+	city string(4000),
+	country string(4000),
+	street string(4000),
+	zip string(4000),
+	birthdate date OPTIONS(FIXED_LENGTH 'TRUE'),
+	firstname string(4000),
+	lastname string(4000)
+)
+AS
+	SELECT * FROM src_europa.eu_customer;
+
+]]></metadata>
+</model>
+<model name="src_africa" visible="false">
+<source connection-jndi-name="beosbank-africa-DS" name="src_africa" translator-name="mysql5"/>
+<metadata type="DDL"><![CDATA[
+
+CREATE FOREIGN TABLE AF_CUSTOMER (
+	ID long NOT NULL OPTIONS(NAMEINSOURCE '`ID`', NATIVE_TYPE 'BIGINT', FIXED_LENGTH 'TRUE'),
+	CITY string(30) OPTIONS(NAMEINSOURCE '`CITY`', NATIVE_TYPE 'VARCHAR'),
+	COUNTRY string(50) OPTIONS(NAMEINSOURCE '`COUNTRY`', NATIVE_TYPE 'VARCHAR'),
+	STREET string(30) OPTIONS(NAMEINSOURCE '`STREET`', NATIVE_TYPE 'VARCHAR'),
+	POBOX string(30) OPTIONS(NAMEINSOURCE '`POBOX`', NATIVE_TYPE 'VARCHAR'),
+	BIRTHDATE date OPTIONS(NAMEINSOURCE '`BIRTHDATE`', NATIVE_TYPE 'DATE', FIXED_LENGTH 'TRUE'),
+	FIRSTNAME string(30) OPTIONS(NAMEINSOURCE '`FIRSTNAME`', NATIVE_TYPE 'VARCHAR'),
+	LASTNAME string(30) OPTIONS(NAMEINSOURCE '`LASTNAME`', NATIVE_TYPE 'VARCHAR'),
+	SURNAME string(30) OPTIONS(NAMEINSOURCE '`SURNAME`', NATIVE_TYPE 'VARCHAR'),
+	CONSTRAINT "PRIMARY" PRIMARY KEY(ID) OPTIONS(NAMEINSOURCE '`PRIMARY`')
+) OPTIONS(NAMEINSOURCE '`beosbank-africa`.`AF_CUSTOMER`', UPDATABLE 'TRUE', CARDINALITY '10');
+
+CREATE FOREIGN TABLE AF_MONEYTRANSFER (
+	ID long NOT NULL OPTIONS(NAMEINSOURCE '`ID`', NATIVE_TYPE 'BIGINT', FIXED_LENGTH 'TRUE'),
+	AMOUNT_HF_SENDER_CUR bigdecimal OPTIONS(NAMEINSOURCE '`AMOUNT_HF_SENDER_CUR`', NATIVE_TYPE 'DECIMAL', FIXED_LENGTH 'TRUE'),
+	AMOUNT_HF_RECEIVER_CUR bigdecimal OPTIONS(NAMEINSOURCE '`AMOUNT_HF_RECEIVER_CUR`', NATIVE_TYPE 'DECIMAL', FIXED_LENGTH 'TRUE'),
+	AMOUNT_TFC bigdecimal OPTIONS(NAMEINSOURCE '`AMOUNT_TFC`', NATIVE_TYPE 'DECIMAL', FIXED_LENGTH 'TRUE'),
+	MOBILEMONEY string(30) OPTIONS(NAMEINSOURCE '`MOBILEMONEY`', NATIVE_TYPE 'VARCHAR'),
+	FEES bigdecimal OPTIONS(NAMEINSOURCE '`FEES`', NATIVE_TYPE 'DECIMAL', FIXED_LENGTH 'TRUE'),
+	KEYCODE string(30) NOT NULL OPTIONS(NAMEINSOURCE '`KEYCODE`', NATIVE_TYPE 'VARCHAR'),
+	RECEIVER_CURRENCY string(5) OPTIONS(NAMEINSOURCE '`RECEIVER_CURRENCY`', NATIVE_TYPE 'VARCHAR'),
+	SENDER_CURRENCY string(5) OPTIONS(NAMEINSOURCE '`SENDER_CURRENCY`', NATIVE_TYPE 'VARCHAR'),
+	SENDING_DATE date OPTIONS(NAMEINSOURCE '`SENDING_DATE`', NATIVE_TYPE 'DATE', FIXED_LENGTH 'TRUE'),
+	status string(10) OPTIONS(NAMEINSOURCE '`status`', NATIVE_TYPE 'VARCHAR'),
+	TOTAL_HT bigdecimal OPTIONS(NAMEINSOURCE '`TOTAL_HT`', NATIVE_TYPE 'DECIMAL', FIXED_LENGTH 'TRUE'),
+	TOTAL_TTC bigdecimal OPTIONS(NAMEINSOURCE '`TOTAL_TTC`', NATIVE_TYPE 'DECIMAL', FIXED_LENGTH 'TRUE'),
+	VAT bigdecimal OPTIONS(NAMEINSOURCE '`VAT`', NATIVE_TYPE 'DECIMAL', FIXED_LENGTH 'TRUE'),
+	WITHDRAWAL_GDATE date OPTIONS(NAMEINSOURCE '`WITHDRAWAL_GDATE`', NATIVE_TYPE 'DATE', FIXED_LENGTH 'TRUE'),
+	SENDER_ID long OPTIONS(NAMEINSOURCE '`SENDER_ID`', NATIVE_TYPE 'BIGINT', FIXED_LENGTH 'TRUE'),
+	RECEIVER_ID long OPTIONS(NAMEINSOURCE '`RECEIVER_ID`', NATIVE_TYPE 'BIGINT', FIXED_LENGTH 'TRUE'),
+	CONSTRAINT "PRIMARY" PRIMARY KEY(ID) OPTIONS(NAMEINSOURCE '`PRIMARY`'),
+	CONSTRAINT FKecpbpew0ycqv0p6e6pwb43o26 FOREIGN KEY(SENDER_ID) REFERENCES AF_CUSTOMER(ID) OPTIONS(NAMEINSOURCE '`FKecpbpew0ycqv0p6e6pwb43o26`'),
+	CONSTRAINT FK4x2r0ve8rm9hx880u641inth5 FOREIGN KEY(RECEIVER_ID) REFERENCES AF_CUSTOMER(ID) OPTIONS(NAMEINSOURCE '`FK4x2r0ve8rm9hx880u641inth5`')
+) OPTIONS(NAMEINSOURCE '`beosbank-africa`.`AF_MONEYTRANSFER`', UPDATABLE 'TRUE', CARDINALITY '10');
+
+]]></metadata>
+</model>
+<model name="src_europa" visible="false">
+<source connection-jndi-name="beosbank-europa-DS" name="src_europa" translator-name="postgresql"/>
+<metadata type="DDL"><![CDATA[
+
+CREATE FOREIGN TABLE eu_customer (
+	id long NOT NULL OPTIONS(NAMEINSOURCE '"id"', NATIVE_TYPE 'int8', FIXED_LENGTH 'TRUE'),
+	city string(4000) OPTIONS(NAMEINSOURCE '"city"', NATIVE_TYPE 'varchar'),
+	country string(4000) OPTIONS(NAMEINSOURCE '"country"', NATIVE_TYPE 'varchar'),
+	street string(4000) OPTIONS(NAMEINSOURCE '"street"', NATIVE_TYPE 'varchar'),
+	zip string(4000) OPTIONS(NAMEINSOURCE '"zip"', NATIVE_TYPE 'varchar'),
+	birthdate date OPTIONS(NAMEINSOURCE '"birthdate"', NATIVE_TYPE 'date', FIXED_LENGTH 'TRUE'),
+	firstname string(4000) OPTIONS(NAMEINSOURCE '"firstname"', NATIVE_TYPE 'varchar'),
+	lastname string(4000) OPTIONS(NAMEINSOURCE '"lastname"', NATIVE_TYPE 'varchar'),
+	CONSTRAINT eu_customer_pkey PRIMARY KEY(id) OPTIONS(NAMEINSOURCE '"eu_customer_pkey"')
+) OPTIONS(NAMEINSOURCE '"public"."eu_customer"', UPDATABLE 'TRUE', CARDINALITY '12');
+
+CREATE FOREIGN TABLE eu_moneytransfer (
+	id long NOT NULL OPTIONS(NAMEINSOURCE '"id"', NATIVE_TYPE 'int8', FIXED_LENGTH 'TRUE'),
+	amount_hf_sender_cur bigdecimal DEFAULT 'NULL::numeric' OPTIONS(NAMEINSOURCE '"amount_hf_sender_cur"', NATIVE_TYPE 'numeric', FIXED_LENGTH 'TRUE'),
+	amount_hf_receiver_cur bigdecimal DEFAULT 'NULL::numeric' OPTIONS(NAMEINSOURCE '"amount_hf_receiver_cur"', NATIVE_TYPE 'numeric', FIXED_LENGTH 'TRUE'),
+	amount_tfc bigdecimal DEFAULT 'NULL::numeric' OPTIONS(NAMEINSOURCE '"amount_tfc"', NATIVE_TYPE 'numeric', FIXED_LENGTH 'TRUE'),
+	creditcard string(4000) OPTIONS(NAMEINSOURCE '"creditcard"', NATIVE_TYPE 'varchar'),
+	fees bigdecimal DEFAULT 'NULL::numeric' OPTIONS(NAMEINSOURCE '"fees"', NATIVE_TYPE 'numeric', FIXED_LENGTH 'TRUE'),
+	keycode string(4000) NOT NULL OPTIONS(NAMEINSOURCE '"keycode"', NATIVE_TYPE 'varchar'),
+	receiver_currency string(4000) OPTIONS(NAMEINSOURCE '"receiver_currency"', NATIVE_TYPE 'varchar'),
+	sender_currency string(4000) OPTIONS(NAMEINSOURCE '"sender_currency"', NATIVE_TYPE 'varchar'),
+	sending_date date OPTIONS(NAMEINSOURCE '"sending_date"', NATIVE_TYPE 'date', FIXED_LENGTH 'TRUE'),
+	status string(4000) OPTIONS(NAMEINSOURCE '"status"', NATIVE_TYPE 'varchar'),
+	total_ht bigdecimal DEFAULT 'NULL::numeric' OPTIONS(NAMEINSOURCE '"total_ht"', NATIVE_TYPE 'numeric', FIXED_LENGTH 'TRUE'),
+	total_ttc bigdecimal DEFAULT 'NULL::numeric' OPTIONS(NAMEINSOURCE '"total_ttc"', NATIVE_TYPE 'numeric', FIXED_LENGTH 'TRUE'),
+	vat bigdecimal DEFAULT 'NULL::numeric' OPTIONS(NAMEINSOURCE '"vat"', NATIVE_TYPE 'numeric', FIXED_LENGTH 'TRUE'),
+	withdrawal_gdate date OPTIONS(NAMEINSOURCE '"withdrawal_gdate"', NATIVE_TYPE 'date', FIXED_LENGTH 'TRUE'),
+	sender_id long OPTIONS(NAMEINSOURCE '"sender_id"', NATIVE_TYPE 'int8', FIXED_LENGTH 'TRUE'),
+	receiver_id long OPTIONS(NAMEINSOURCE '"receiver_id"', NATIVE_TYPE 'int8', FIXED_LENGTH 'TRUE'),
+	CONSTRAINT eu_moneytransfer_pkey PRIMARY KEY(id) OPTIONS(NAMEINSOURCE '"eu_moneytransfer_pkey"'),
+	CONSTRAINT eu_moneytransfer_sender_id_fkey FOREIGN KEY(sender_id) REFERENCES eu_customer(id) OPTIONS(NAMEINSOURCE '"eu_moneytransfer_sender_id_fkey"'),
+	CONSTRAINT eu_moneytransfer_receiver_id_fkey FOREIGN KEY(receiver_id) REFERENCES eu_customer(id) OPTIONS(NAMEINSOURCE '"eu_moneytransfer_receiver_id_fkey"')
+) OPTIONS(NAMEINSOURCE '"public"."eu_moneytransfer"', UPDATABLE 'TRUE', CARDINALITY '9');
+
+]]></metadata>
+</model>
+<model name="all_regions" type="VIRTUAL">
+<property name="imports" value="src_europa"/>
+<metadata type="DDL"><![CDATA[
+
+CREATE VIEW customers (
+	ID long NOT NULL PRIMARY KEY,
+	CITY string(30),
+	COUNTRY string(50),
+	STREET string(30),
+	POBOX string(30),
+	BIRTHDATE date OPTIONS(FIXED_LENGTH 'TRUE'),
+	FIRSTNAME string(30),
+	LASTNAME string(30)
+)
+AS
+	SELECT
+		customer_vbl.customer_africa.ID, customer_vbl.customer_africa.CITY, customer_vbl.customer_africa.COUNTRY, customer_vbl.customer_africa.STREET, customer_vbl.customer_africa.POBOX, customer_vbl.customer_africa.BIRTHDATE, customer_vbl.customer_africa.FIRSTNAME, customer_vbl.customer_africa.LASTNAME
+	FROM
+		customer_vbl.customer_africa
+UNION ALL
+SELECT
+		customer_vbl.customer_europa.id + 100, customer_vbl.customer_europa.city, customer_vbl.customer_europa.country, customer_vbl.customer_europa.street, customer_vbl.customer_europa.zip AS POBOX, customer_vbl.customer_europa.birthdate, customer_vbl.customer_europa.firstname, customer_vbl.customer_europa.lastname
+	FROM
+		customer_vbl.customer_europa;
+
+]]></metadata>
+</model>
+</vdb>
